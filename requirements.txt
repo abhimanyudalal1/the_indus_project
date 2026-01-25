@@ -1,0 +1,29 @@
+# Earth Engine and Geospatial Libraries
+earthengine-api>=0.1.384
+geemap>=0.30.0
+
+# Jupyter and Widget Support
+ipyleaflet>=0.17.0
+ipywidgets>=8.0.0
+notebook>=6.5.0
+jupyter>=1.0.0
+jupyterlab>=3.0.0
+jupyterlab-widgets>=3.0.0
+widgetsnbextension>=4.0.0
+
+# Geospatial Data Processing
+folium>=0.14.0
+geopandas>=0.14.0
+shapely>=2.0.0
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+
+# HTTP Requests (for data_downloader.py)
+requests>=2.31.0
+
+# Optional but recommended
+matplotlib>=3.7.0
+plotly>=5.14.0
+pyreadline3
