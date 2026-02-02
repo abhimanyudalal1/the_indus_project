@@ -27,3 +27,8 @@ requests>=2.31.0
 matplotlib>=3.7.0
 plotly>=5.14.0
 pyreadline3
+
+
+
+earthengine
+pyCRS

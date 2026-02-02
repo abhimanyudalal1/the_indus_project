@@ -15,7 +15,7 @@ base_url="https://power.larc.nasa.gov/api/temporal/daily/regional"
 
 #gotta make this- https://power.larc.nasa.gov/api/temporal/daily/point?start=20000101&end=20260101&latitude=30&longitude=73&community=re
 # &parameters=TSURF%2CT2M_RANGE%2CPRECSNO%2CIMERG_PRECTOT&format=json&units=metric&user=abhimanyu&header=true&time-standard=lst
-
+#|for regional
 def fetch_data():
         for param in parameters:
             for i,reg in enumerate(regions):
