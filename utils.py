@@ -53,4 +53,25 @@ def datesync(in_path=None, out_path=None, df=None, start_date='2000-06-01', end_
 
     return df_filtered
 
+#####
+from sklearn.linear_model import LinearRegression
+def create_lag(df, lag_sca, lag_dd, lag_precip, lag_et):
+    df['sca_lagged'] = df['sca'].shift(lag_sca)
+    df['dd_lagged'] = df['dd'].shift(lag_dd)
+    df['et_loss_lagged'] = df['et_loss'].shift(lag_et)
+    df['melt_proxy'] = df['sca_lagged']*df['dd_lagged']
+    df['precipitation_lagged'] = df['precipitation'].shift(lag_precip)
+    df['precipitation_lagged-1'] = df['precipitation'].shift(lag_precip-1)
+    df['precipitation_lagged_cum'] = ((df['precipitation']+df['precipitation_lagged'])/2)
     
+    df_clean = df.dropna()
+
+    return df_clean
+
+#####
+import numpy as np
+def calculate_nse(observed, predicted):
+    mean_obs = np.mean(observed)
+    numerator = np.sum((observed - predicted) ** 2)
+    denominator = np.sum((observed - mean_obs) ** 2)
+    return 1 - (numerator / denominator)
