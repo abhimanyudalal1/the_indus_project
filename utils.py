@@ -61,11 +61,10 @@ def create_lag(df, lag_sca, lag_dd, lag_precip, lag_et):
     df['et_loss_lagged'] = df['et_loss'].shift(lag_et)
     df['melt_proxy'] = df['sca_lagged']*df['dd_lagged']
     df['precipitation_lagged'] = df['precipitation'].shift(lag_precip)
-    df['precipitation_lagged-1'] = df['precipitation'].shift(lag_precip-1)
+    # df['precipitation_lagged-1'] = df['precipitation'].shift(lag_precip-1)
     df['precipitation_lagged_cum'] = ((df['precipitation']+df['precipitation_lagged'])/2)
     
     df_clean = df.dropna()
-
     return df_clean
 
 #####
