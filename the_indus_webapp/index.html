@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Indus Project</title>
+
+    <!-- MapLibre GL JS -->
+    <link href="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.css" rel="stylesheet" />
+    <script src="https://unpkg.com/maplibre-gl@3.6.2/dist/maplibre-gl.js"></script>
+
+    <!-- Scrollama & Intersection Observer -->
+    <script src="https://unpkg.com/intersection-observer@0.12.2/intersection-observer.js"></script>
+    <script src="https://unpkg.com/scrollama"></script>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <!-- Map Container -->
+        <div id="map"></div>
+
+        <!-- Scrollytelling Container -->
+        <section id="scrolly">
+            <article>
+                <div class="step narrative" data-step="1">
+                    <div class="narrative-box">
+                        <p id="narrative-title">Upper Indus Basin</p>
+                        <p id="narrative-sub" class="sub">Snow accumulation in the Karakoram & Himalaya ranges during winter months.</p>
+                    </div>
+                </div>
+            </article>
+        </section>
+    </main>
+
+    <script type="module" src="/main.js"></script>
+</body>
+</html>

@@ -1,4 +1,5 @@
 from duckdb import Value
+from flask.cli import F
 import pandas as pd
 from itertools import product
 
@@ -101,53 +102,19 @@ def create_lag_adv_corrected(df_in):
     - Enforces a minimum lag of 1 to prevent using current-day info.
     """
     df = df_in.copy() # Work on a copy to prevent side effects
-    
-    # --- CRITICAL FIX: Use ranges that start from 1 ---
-    # This prevents using shift(0), which causes data leakage.
-    # We will create a set of lagged features.
-    
-    df['sca_lagged_1'] = df['sca'].shift(1)
-    df['sca_lagged_2'] = df['sca'].shift(2)
-    df['sca_lagged_3'] = df['sca'].shift(3)
-    df['sca_lagged_4'] = df['sca'].shift(4)
-    df['sca_lagged_5'] = df['sca'].shift(5)
-    df['sca_lagged_6'] = df['sca'].shift(6)
-    df['sca_lagged_7'] = df['sca'].shift(7)
 
-    df['dd_lagged_1'] = df['dd'].shift(1)
-    df['dd_lagged_2'] = df['dd'].shift(2)
-    df['dd_lagged_3'] = df['dd'].shift(3)
-    df['dd_lagged_4'] = df['dd'].shift(4)
-    df['dd_lagged_5'] = df['dd'].shift(5)
-    df['dd_lagged_6'] = df['dd'].shift(6)
-    df['dd_lagged_7'] = df['dd'].shift(7)
-
+    for i in range(1, 8):
+        df[f'sca_lagged_{i}'] = df['sca'].shift(i)
+        df[f'dd_lagged_{i}'] = df['dd'].shift(i)
     df['et_loss_lagged_1'] = df['et_loss'].shift(1)
-    
     df['precipitation_lagged_1'] = df['precipitation'].shift(1)
 
-    # Create interaction terms (melt proxies) using ONLY lagged features
-    df['melt_proxy_1_1'] = df['sca_lagged_1'] * df['dd_lagged_1']
-    df['melt_proxy_1_2'] = df['sca_lagged_1'] * df['dd_lagged_2']
-    df['melt_proxy_2_1'] = df['sca_lagged_2'] * df['dd_lagged_1']
-    df['melt_proxy_2_2'] = df['sca_lagged_2'] * df['dd_lagged_2']
-    for i in range(1, 8):
-        for j in range(1, 8):
-            df[f'melt_proxy_{i}_{j}'] = df[f'sca_lagged_{i}'] * df[f'dd_lagged_{j}']
-    # lagged_features = []
+    for i in range(1,8):
+        for j in range(1,8):
+            if i >= j and i - j < 2:
+                df[f'melt_proxy_{i}_{j}'] = df[f'sca_lagged_{i}'] * df[f'dd_lagged_{j}']
+    
+    
+    lagged_cols = [col for col in df.columns if 'lagged' in col or 'proxy' in col]
 
-    # # Collect all lagged SCA columns
-    # for i in range(1, 8):
-    #     lagged_features.append(f'sca_lagged_{i}')
-    # # Collect all lagged DD columns
-    # for i in range(1, 8):
-    #     lagged_features.append(f'dd_lagged_{i}')
-    # # ET loss lagged
-    # lagged_features.append('et_loss_lagged_1')
-    # # Precipitation lagged
-    # lagged_features.append('precipitation_lagged_1')
-    # # Melt proxy interaction terms
-    # for i in range(1, 8):
-    #     for j in range(1, 8):
-    #         lagged_features.append(f'melt_proxy_{i}_{j}')
-    return df.dropna()
+    return df[lagged_cols].dropna()
