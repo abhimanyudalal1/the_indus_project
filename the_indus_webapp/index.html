@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,10 +15,13 @@
     <script src="https://unpkg.com/scrollama"></script>
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Outfit:wght@400;700&display=swap"
+        rel="stylesheet">
 
     <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
     <main>
         <!-- Map Container -->
@@ -27,15 +31,196 @@
         <section id="scrolly">
             <article>
                 <div class="step narrative" data-step="1">
-                    <div class="narrative-box">
-                        <p id="narrative-title">Upper Indus Basin</p>
-                        <p id="narrative-sub" class="sub">Snow accumulation in the Karakoram & Himalaya ranges during winter months.</p>
-                    </div>
+                    <!-- The immense scroll space -->
                 </div>
             </article>
         </section>
+
+        <!-- Fixed Act 2 Overlay (Appears after camera roll) -->
+        <div id="act2-overlay">
+            <div class="act2-container">
+                <div class="act2-nav" id="act2-nav">
+                    <button class="nav-btn active" data-index="0">Problem Setup</button>
+                    <button class="nav-btn" data-index="1">Model Architecture & Metrics</button>
+                    <button class="nav-btn" data-index="2">Hydrograph</button>
+                    <button class="nav-btn" data-index="3">Residual Diagnostics</button>
+                    <button class="nav-btn" data-index="4">Shortcomings</button>
+                </div>
+
+                <div class="act2-carousel" id="act2-carousel">
+
+                    <!-- Card 1: Problem Setup -->
+                    <div class="carousel-card specs-box">
+                        <div class="specs-content">
+                            <ul>
+                                <li><strong>Basin area:</strong> 165,000 km²</li>
+                                <li><strong>Data:</strong> ERA5-Land monthly, MODIS, 2000–2025</li>
+                                <li><strong>Target variable:</strong> monthly discharge at Tarbela (m/month)</li>
+                                <li><strong>Train/val/test split:</strong> 2000-2017, 2018-2021, 2022-2025</li>
+                                <li><strong>Why monthly:</strong> less prone to fitting noisy data, operational forecasting horizon
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="specs-image">
+                            <img src="/uib.webp" alt="Upper Indus Basin Map" class="uib-map-img">
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Architecture + Performance Metrics -->
+                    <div class="carousel-card specs-box diagram-table-card">
+                        <div class="table-box">
+                            <div class="table-wrapper">
+                                <table class="model-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Component</th>
+                                            <th>Type</th>
+                                            <th>Features</th>
+                                            <th>NSE</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>Physics baseline</td>
+                                            <td>Linear regression</td>
+                                            <td>3</td>
+                                            <td>0.68</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Residual model</td>
+                                            <td>XGBoost</td>
+                                            <td>15</td>
+                                            <td>—</td>
+                                        </tr>
+                                        <tr class="hybrid-row">
+                                            <td>Hybrid</td>
+                                            <td>Baseline + XGBoost</td>
+                                            <td>—</td>
+                                            <td>0.80</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="diagram-box">
+                            <img src="/flowdiag.webp" alt="Flow Diagram" class="flow-diagram">
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Hydrograph -->
+                    <div class="carousel-card specs-box">
+                        <div class="specs-content">
+                            <ul>
+                                <li><strong>Seasonal Trends:</strong> The river's flow exhibits a distinct seasonal
+                                    pattern, with a significant discharge peak every summer and much lower flow during
+                                    other times of the year.</li>
+                                <br>
+                                <li><strong>Baseline Model Performance:</strong> The Baseline Model captures the general
+                                    seasonal cycle but is often inaccurate, struggling to correctly predict the
+                                    magnitude of peak flows and appearing unstable during low-flow periods.</li>
+                                <br>
+                                <li><strong>Hybrid AI Model Performance:</strong> The Hybrid AI Model tracks the actual
+                                    discharge with much greater accuracy, proving superior at predicting both the timing
+                                    and size of peak flows while remaining more stable year-round.</li>
+                            </ul>
+                        </div>
+                        <div class="specs-image">
+                            <!-- Needs styling similar to flow-diagram or uib-map to pull it up if it has margins, but generally uib-map-img class has valid defaults -->
+                            <img src="/hydrology1.webp" alt="River Discharge Hydrograph" class="uib-map-img">
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Residual Diagnostics -->
+                    <div class="carousel-card specs-box residual-card">
+                        <div class="specs-content">
+                            <ul>
+                                <li><strong>Autocorrelation:</strong> No statistically significant autocorrelation at
+                                    any lag 1–12 months.</li>
+                                <br>
+                                <li><strong>Durbin-Watson:</strong> 1.751 (baseline), 2.195 (hybrid).</li>
+                            </ul>
+                        </div>
+                        <div class="specs-image">
+                            <img src="/acf.webp" alt="Autocorrelation Function" class="uib-map-img">
+                        </div>
+                    </div>
+
+                    <!-- Card 5: Shortcomings -->
+                    <div class="carousel-card specs-box shortcomings-card">
+                        <div class="specs-content">
+                            <ul>
+                                <li><strong>Model performance:</strong> The model performs well in the upper Indus
+                                    Basin(Blue region), where streamflow is primarily driven by snow and glacier melt
+                                    captured through satellite data.</li>
+                                
+                                <li><strong>Downstream reliability decreases:</strong> Limited access to ground
+                                    discharge data for calibration and increasing human intervention (reservoir
+                                    operations, diversions) are not explicitly modeled.</li>
+                            
+                                <li><strong>Implication:</strong> Predictions beyond major control points such as
+                                    Tarbela(Red region) should be interpreted with caution.</li>
+                                
+                                <li><strong>Glacier dynamics not explicitly modeled — melt proxy is a simplification
+
+.</li>
+                            </ul>
+                        </div>
+                        <div class="specs-image">
+                            <img src="/uibfull.webp" alt="Upper Indus Basin Full View" class="uib-map-img">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- Fixed UI Timeline -->
+        <div id="ui-panel">
+            <h1 id="main-title">The Indus Project</h1>
+
+            <div id="timeline-container">
+                <div id="timeline-track">
+                    <div id="timeline-progress"></div>
+                </div>
+                <div id="timeline-labels">
+                    <div class="timeline-label" style="top: 0%;">
+                        <span class="dot"></span>
+                        <span class="text">April (Peak Snow Accumulation)</span>
+                    </div>
+                    <div class="timeline-label" style="top: 30%;">
+                        <span class="dot"></span>
+                        <span class="text" id="label-melt">July (Rapid Summer Melt)</span>
+                    </div>
+                    <div class="timeline-label" style="top: 60%;">
+                        <span class="dot"></span>
+                        <span class="text" id="label-flow">August (Main Stem Routing)</span>
+                    </div>
+                    <div class="timeline-label" style="top: 95%;">
+                        <span class="dot"></span>
+                        <span class="text">October (Arrival at Tarbela)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legend Panel -->
+        <div id="map-legend">
+            <div class="legend-item">
+                <div class="color-box" style="background-color: #000000; border-color: #333;"></div>
+                <span>Upper Indus Basin</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box" style="background-color: #ffffff;"></div>
+                <span>Snow Pack</span>
+            </div>
+            <div class="legend-item">
+                <div class="color-box glow-blue" style="background-color: #0ea5e9;"></div>
+                <span>River Flow</span>
+            </div>
+        </div>
     </main>
 
     <script type="module" src="/main.js"></script>
 </body>
+
 </html>

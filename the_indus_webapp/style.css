@@ -19,9 +19,7 @@ body {
     width: 100vw;
     height: 100vh;
     z-index: 0;
-    /* Optional vignette over the map for cinematic feel */
     box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.8);
-    pointer-events: none; /* Let pointer events through if scrolly fails, but keep map static behind */
 }
 
 /* Scrollytelling Container */
@@ -39,52 +37,593 @@ article {
 }
 
 .step.narrative {
-    height: 200vh; /* Extremely long step so we track progress across this height */
+    height: 250vh;
+    /* Extremely long step so we track progress across this height */
     padding: 0;
     margin: 0;
-    opacity: 1; /* override previous opacity states */
+    opacity: 1;
+    /* override previous opacity states */
     transform: none;
     background: transparent;
     border: none;
     box-shadow: none;
 }
 
-.narrative-box {
-    position: sticky;
-    top: 50vh;
-    left: 4vw;
-    transform: translateY(-50%);
-    padding: 2.5rem;
-    background: rgba(15, 23, 42, 0.65);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-    border-radius: 24px;
-    max-width: 450px;
-    opacity: 0; /* Animated in JS */
+#ui-panel {
+    position: fixed;
+    top: 10vh;
+    right: 5vw;
+    width: 380px;
+    height: 80vh;
+    z-index: 10;
+    pointer-events: none;
+    /* Let scroll pass through */
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+#main-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 5rem;
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, #f12a07 0%, #4b170d 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 5rem;
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5));
+    white-space: nowrap;
+    margin-left: -200px;
+    pointer-events: auto;
+    /* Allow text selection */
+}
+
+#timeline-container {
+    flex-grow: 1;
+    position: relative;
+    width: 100%;
     transition: opacity 0.5s ease-in-out;
 }
 
-.narrative-box.is-active {
-    opacity: 1;
+#timeline-track {
+    position: absolute;
+    left: 10px;
+    top: 5px;
+    bottom: 5px;
+    width: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
 }
 
-.narrative-box p#narrative-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    line-height: 1.1;
-    background: linear-gradient(135deg, #ffffff 0%, #0ea5e9 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+#timeline-progress {
+    width: 100%;
+    height: 0%;
+    background: #ffffff;
+    /* Animatable via JS */
+    text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8);
+    border-radius: 2px;
+    transition: background-color 0.4s ease;
+    /* smooth color changes */
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
 }
 
-.narrative-box p.sub {
+.timeline-label {
+    position: absolute;
+    left: 10px;
+    display: flex;
+    align-items: center;
+    transform: translateY(-50%);
+    width: 100%;
+}
+
+.timeline-label .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #1e293b;
+    border: 2px solid #cbd5e1;
+    margin-left: -4px;
+    /* Center over 4px track */
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.8);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.timeline-label .text {
+    margin-left: 20px;
     font-family: 'Inter', sans-serif;
-    font-size: 1.125rem;
-    font-weight: 400;
+    font-size: 1.25rem;
+    color: #94a3b8;
+    font-weight: 500;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+    transition: color 0.3s, transform 0.3s;
+    pointer-events: auto;
+    /* allow selection */
+}
+
+.timeline-label.active .text {
+    color: #ffffff;
+    transform: translateX(5px);
+    font-weight: 600;
+}
+
+#map-legend {
+    position: fixed;
+    bottom: 2.5vh;
+    left: 4vw;
+    z-index: 10;
+    padding: 1.5rem;
+    background: rgba(110, 93, 73, 0.65);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 25px 50px -12px rgba(255, 254, 254, 0.059);
+    border-radius: 16px;
+    font-family: 'Inter', sans-serif;
     color: #cbd5e1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    transition: opacity 0.5s ease-in-out;
+    pointer-events: auto;
+    /* Allows hover selection */
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.legend-item .color-box {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.legend-item .glow-blue {
+    box-shadow: 0 0 8px #0ea5e9;
+}
+
+/* Act 2 Normal Flow Content */
+#act2-normal-flow {
+    position: relative;
+    z-index: 20;
+    background-color: #0f172a;
+    min-height: 100vh;
+    padding: 6rem 4rem;
+    box-shadow: 0 -20px 50px rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+}
+
+.act2-container {
+    max-width: 1200px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 3rem;
+}
+
+.section-heading {
+    font-family: 'Outfit', sans-serif;
+    font-size: 3rem;
+    font-weight: 800;
+    color: #ffffff;
+    border-bottom: 2px solid #334155;
+    padding-bottom: 1rem;
+    margin: 0;
+}
+
+.content-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    align-items: start;
+}
+
+.specs-box ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    color: #cbd5e1;
+    font-size: 1.15rem;
+    line-height: 1.8;
+    font-family: 'Inter', sans-serif;
+    list-style-type: square;
+}
+
+.specs-box li {
+    margin-bottom: 1rem;
+}
+
+.specs-box strong {
+    color: #0ea5e9;
+    font-weight: 600;
+}
+
+.model-box {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    background: rgba(30, 41, 59, 0.5);
+    padding: 2rem;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.flow-diagram {
+    width: 100%;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.model-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: #e2e8f0;
+}
+
+.model-table th,
+.model-table td {
+    padding: 1rem 0.5rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.model-table th {
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+}
+
+.hybrid-row {
+    background: rgba(14, 165, 233, 0.15);
+    border-radius: 8px;
+}
+
+.hybrid-row td {
+    font-weight: 700;
+    color: #38bdf8;
+}
+
+.tarbela-marker-container {
+    display: flex;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    pointer-events: none;
+}
+
+.tarbela-marker-pulse {
+    width: 16px;
+    height: 16px;
+    background-color: #ef4444;
+    border-radius: 50%;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 15px #ef4444, 0 0 30px #ef4444;
+    position: relative;
+}
+
+.tarbela-marker-label {
+    margin-left: 1rem;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #ffffff;
+    background: rgba(15, 23, 42, 0.8);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    white-space: nowrap;
+    cursor: pointer;
+}
+
+/* MapLibre Popup Styling override for Dark Mode */
+.maplibregl-popup-content {
+    background: rgba(15, 23, 42, 0.85) !important;
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #f8fafc;
+    border-radius: 12px !important;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6) !important;
+    padding: 1.5rem !important;
+    max-width: 450px !important;
+}
+
+.maplibregl-popup-tip {
+    border-top-color: rgba(15, 23, 42, 0.85) !important;
+}
+
+.maplibregl-popup-close-button {
+    color: #cbd5e1;
+    font-size: 1.5rem;
+    padding: 0.25rem 0.5rem;
+}
+
+.maplibregl-popup-close-button:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: white;
+    border-radius: 0 12px 0 12px;
+}
+
+.tarbela-popup-content h3 {
+    font-family: 'Outfit', sans-serif;
+    color: #0ea5e9;
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    margin-top: 0;
+}
+
+.tarbela-popup-content p {
+    font-family: 'Inter', sans-serif;
+    color: #cbd5e1;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+}
+
+.tarbela-popup-content ol {
+    margin-left: 1.5rem;
+    padding-left: 0;
+    font-family: 'Inter', sans-serif;
+    color: #94a3b8;
+    line-height: 1.5;
+}
+
+.tarbela-popup-content li {
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+
+.tarbela-popup-content li strong {
+    color: #e2e8f0;
+    font-weight: 600;
+}
+
+/* Act 2 Fixed Overlay Container */
+#act2-overlay {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    z-index: 20;
+
+    /* Hidden initially */
+    opacity: 0;
+    pointer-events: none; /* ALWAYS none — clicks pass through to map/marker */
+    transform: translateY(100%);
+    transition: opacity 0.8s ease-in-out, transform 0.8s ease-out;
+}
+
+.act2-container {
+    width: 100%;
+    max-height: 60vh;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.15);
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    padding: 0.4rem 0.5rem;
+    overflow: hidden;
+    pointer-events: auto; /* Only the white panel itself captures clicks */
+}
+
+.act2-nav {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin: 0;
+    margin-bottom: 0.25rem;
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    padding: 0.4rem 0;
+    flex-shrink: 0;
+}
+
+.nav-btn {
+    background: transparent;
+    border: none;
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #64748b;
+    cursor: pointer;
+    transition: color 0.3s;
+    outline: none;
+    padding: 0.25rem 0.5rem;
+}
+
+.nav-btn.active {
+    color: #0f172a;
+    border-bottom: 2px solid #0f172a;
+    margin-bottom: -0.25rem;
+    padding-bottom: 0.5rem;
+}
+
+.nav-btn:hover {
+    color: #334155;
+}
+
+.act2-carousel {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 0; /* No gap between cards */
+    padding: 0;
+    scrollbar-width: none;
+    pointer-events: auto;
+    align-items: stretch;
+    scroll-behavior: smooth;
+    flex: 1; /* Fill all remaining vertical space */
+    min-height: 0; /* Allow flex shrinking */
+}
+
+.act2-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.carousel-card {
+    flex: 0 0 100%; /* Show ONLY one card at a time perfectly */
+    min-width: 100%;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: flex-start; /* Removed center justification to kill the massive empty vertical gap */
+}
+
+.card-heading {
+    font-family: 'Outfit', sans-serif;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin-top: 0;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #e2e8f0;
+    padding-bottom: 0.5rem;
+}
+
+.specs-box {
+    background: transparent;
+    padding: 0;
+    border: none;
+    display: grid;
+    grid-template-columns: 1.2fr 1fr;
+    gap: 2rem;
+    align-items: flex-start; /* Push content flush to the top */
+}
+
+.diagram-table-card {
+    grid-template-columns: 0.8fr 1.2fr; /* Make the left-side table smaller, giving the image massive width */
+    align-items: flex-start; /* Push table and architecture to the top immediately under nav */
+}
+
+.residual-card {
+    grid-template-columns: 1fr 2fr; /* 1/3 text, 2/3 image */
+    align-items: center; /* Keep standard vertical centering for this card */
+}
+
+.specs-content ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #334155;
+    font-size: 1rem;
     line-height: 1.6;
+    font-family: 'Inter', sans-serif;
+    list-style-type: disc;
+}
+
+.specs-content li {
+    margin-bottom: 0.8rem;
+}
+
+.specs-content strong {
+    color: #0284c7;
+    font-weight: 700;
+}
+
+.specs-image {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.uib-map-img {
+    width: 100%;
+    max-height: 48vh; /* increased from 32vh for larger display */
+    object-fit: contain;
+    object-position: top; /* Prevents center-align gap */
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    margin-top: -2vh; /* Physically pull the image up to bite into its intrinsic top padding */
+}
+
+.diagram-box {
+    width: 100%;
+    height: 100%;
+    border-radius: 0px;
+    background: transparent;
+    padding: 0;
+    border: none;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.flow-diagram {
+    max-height: 70vh;
+    max-width: 100%; /* Force width expansion if aspect ratio permits */
+    height: 100%;
+    object-fit: contain;
+    object-position: top; /* Forces the image to hug the top boundary, destroying the gap */
+    display: block;
+    border-radius: 2px;
+    border: none; /* Removed internal border to drop visual boundary line */
+    box-shadow: none; /* Disabled inner box shadow isolating image edges */
+    margin-top: -4vh; /* Physically lift the diagram to forcibly hide the baked-in top-padding of the webp itself */
+}
+
+.table-box {
+    width: 100%;
+    border-radius: 8px;
+    background: transparent;
+    border: none;
+    overflow: hidden;
+}
+
+.table-wrapper {
+    border: 0.0001px solid rgba(0, 0, 0, 0.1);
+    border-radius: 1px;
+    overflow: hidden;
+}
+
+.model-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    color: #334155;
+    background: #ffffff;
+}
+
+.model-table th,
+.model-table td {
+    padding: 1.2rem 1.5rem;
+    text-align: left;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.model-table th {
+    font-weight: 700;
+    color: #0f172a;
+    background: #f1f5f9;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.05em;
+    border-bottom: 2px solid #cbd5e1;
+}
+
+.model-table tr:last-child td {
+    border-bottom: none;
+}
+
+.hybrid-row {
+    background: rgba(14, 165, 233, 0.1);
+}
+
+.hybrid-row td {
+    font-weight: 700;
+    color: #0369a1;
 }
